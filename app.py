@@ -34,7 +34,7 @@ data_DTC = pd.DataFrame(data_DTC)
 Lista_Nombres = ["XGBoost","Random Forest","LightGBM","Gradient Boosting","GAM(Splines + Inter)","Red Neuronal","GAM(Splines)","Regresion Lasso","Elastic Net","Red Neuronal LSTM"]
 
 
-def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=500):
+def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=100):
     PREDDTC = pd.read_excel('y_test_DTC_Predicciones.xlsx')
     PREDDTS = pd.read_excel('y_test_DTS_Predicciones.xlsx')
 
