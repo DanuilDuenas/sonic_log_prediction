@@ -957,7 +957,7 @@ def update_graph(n_clicks, x, y):
     Input('model-dropdown', 'value'),
 )
 def update_graph(selected_model):
-    return grafica_desempeno_modelos(selected_model, sample_size=100)
+    return grafica_desempeno_modelos(selected_model, sample_size=1000)
 
 
 
