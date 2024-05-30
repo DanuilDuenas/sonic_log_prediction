@@ -57,7 +57,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL_SEQ'], y=PREDDTC_sample[NOMBRE_MODELO], mode='markers', 
-                                 marker=dict(color='skyblue', line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
                                  y=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
@@ -66,7 +66,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL_SEQ'], y=PREDDTC_sample['Model1_Residuals'], mode='markers', 
-                                 marker=dict(color='skyblue', line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -79,7 +79,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL_SEQ'], y=PREDDTS_sample[NOMBRE_MODELO], mode='markers',
-                                  marker=dict(color='lightgreen', line=dict(color='white', width=0.5)), showlegend=False),
+                                  marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
                                  y=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
@@ -88,7 +88,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL_SEQ'], y=PREDDTS_sample['Model2_Residuals'], mode='markers', 
-                                 marker=dict(color='lightgreen', line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -152,7 +152,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL'], y=PREDDTC_sample[NOMBRE_MODELO], mode='markers', 
-                                 marker=dict(color='skyblue',line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
                                  y=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
@@ -161,7 +161,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
         
         # Scatter plot of residuals for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL'], y=PREDDTC_sample['Model1_Residuals'], mode='markers', 
-                                 marker=dict(color='skyblue',line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -174,7 +174,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL'], y=PREDDTS_sample[NOMBRE_MODELO], 
-                                 mode='markers', marker=dict(color='lightgreen',line=dict(color='white', width=0.5)), showlegend=False),
+                                 mode='markers', marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
                                  y=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
@@ -183,7 +183,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL'], y=PREDDTS_sample['Model2_Residuals'], 
-                                 mode='markers', marker=dict(color='lightgreen',line=dict(color='white', width=0.5)), showlegend=False),
+                                 mode='markers', marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
