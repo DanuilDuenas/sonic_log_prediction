@@ -51,7 +51,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=100):
             '<b>DTC <br> Valores Reales vs Residuales<b>',
             '<b>DTC <br> Histograma de Residuales<b>',
             '<b>DTS <br> Valores Reales vs Predicciones<b>',
-            '<b>DTS <br> Valores Reales DTS vs Residuales<b>',
+            '<b>DTS <br> Valores Reales vs Residuales<b>',
             '<b>DTS <br> Histograma de Residuales<b>' 
         ])
 
