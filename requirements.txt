@@ -4,4 +4,4 @@ numpy
 joblib
 gunicorn
 dash_bootstrap_components
-sklearn
+scikit-learn
