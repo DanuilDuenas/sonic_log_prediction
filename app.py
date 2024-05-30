@@ -819,7 +819,7 @@ app.layout = html.Div([
     
     html.Div([
     dbc.Container([
-        html.Div(['Esta sección permite la carga de los registros básicos de un pozo para la predicción de los registros sónicos, y seleccionar el modelo predictivo entre los tres modelos con mejor desempeño.', html.Br(), 'Una vez realizada la predicción, se visualizan los registros, y se habilita la opción de descarga']),
+        html.Div(['Esta sección permite la carga de los registros básicos de un pozo para la predicción de los registros sónicos, y seleccionar el modelo predictivo entre los modelos con mejor desempeño.', html.Br(), 'Una vez realizada la predicción, se visualizan los registros, y se habilita la opción de descarga']),
         html.Br(),
         dbc.Row([
             dbc.Col([
