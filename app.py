@@ -34,7 +34,7 @@ data_DTC = pd.DataFrame(data_DTC)
 Lista_Nombres = ["XGBoost","Random Forest","LightGBM","Gradient Boosting","GAM(Splines + Inter)","Red Neuronal","GAM(Splines)","Regresion Lasso","Elastic Net","Red Neuronal LSTM"]
 
 
-def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=100):
+def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
     PREDDTC = pd.read_excel('y_test_DTC_Predicciones.xlsx')
     PREDDTS = pd.read_excel('y_test_DTS_Predicciones.xlsx')
 
@@ -957,7 +957,7 @@ def update_graph(n_clicks, x, y):
     Input('model-dropdown', 'value'),
 )
 def update_graph(selected_model):
-    return grafica_desempeno_modelos(selected_model, sample_size=1000)
+    return grafica_desempeno_modelos(selected_model, sample_size=500)
 
 
 
