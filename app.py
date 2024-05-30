@@ -331,27 +331,27 @@ def generar_predic(ESTADO ,RAW_DATA):
 
         })
 
+    # if ESTADO ==2 :
+
+    #             # Cargar el modelo desde el archivo
+    #     modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
+    #     # Ahora puedes usar el modelo cargado para hacer predicciones
+    #     prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
+
+    #                     # Cargar el modelo desde el archivo
+    #     modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
+    #     # Ahora puedes usar el modelo cargado para hacer predicciones
+    #     prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
+
+    #     Predicciones = pd.DataFrame({
+    #         'Depth': depth,
+    #         'PrediccionesDTC': prediccionesDTC,
+    #         'PrediccionesDTS': prediccionesDTS,
+
+    #     })
+
+
     if ESTADO ==2 :
-
-                # Cargar el modelo desde el archivo
-        modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
-        prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
-
-                        # Cargar el modelo desde el archivo
-        modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
-        prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
-
-        Predicciones = pd.DataFrame({
-            'Depth': depth,
-            'PrediccionesDTC': prediccionesDTC,
-            'PrediccionesDTS': prediccionesDTS,
-
-        })
-
-
-    if ESTADO ==3 :
 
                 # Cargar el modelo desde el archivo
         modelo_cargadoDTS = joblib.load('./best_model_lgb_DTS.pkl')
@@ -850,8 +850,8 @@ app.layout = html.Div([
                     id='model-radioitems',
                     options=[
                         {'label': 'XGBoost', 'value': 1},
-                        {'label': 'Random Forest', 'value': 2},
-                        {'label': 'LightGBM', 'value': 3}
+                        # {'label': 'Random Forest', 'value': 2},
+                        {'label': 'LightGBM', 'value': 2}
                     ],
                     value=1,  # Default value
                     labelStyle={'display': 'block'}
