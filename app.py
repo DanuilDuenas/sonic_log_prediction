@@ -13,9 +13,6 @@ from plotly.subplots import make_subplots
 df = pd.read_csv('Info_general_pozos.csv', sep = "\t")
 df['Tipo'] = df.apply(lambda row: 'Sonico OH' if row['OPEN HOLE'] == 'X' else 'Sonico CH' , axis=1)
 
-external_stylesheets = [dbc.themes.CERULEAN]
-app = Dash(__name__, external_stylesheets=external_stylesheets)
-
 data_DTS = {
     "Modelo": ["XGBoost", "Random Forest", "LightGBM", "Gradient Boosting", "GAM (Splines + Inter)", "Red Neuronal", "GAM (Splines)", "Regression Lasso", "ElasticNet Regression", "LSTM"],
     "RMSE": [9.41, 9.82, 10.46, 10.48, 16.07, 16.42, 17.97, 19.28, 19.28, 17.57],
@@ -480,6 +477,10 @@ def plot_prediccion(df, df_pred):
     )
 
     return fig
+
+external_stylesheets = [dbc.themes.CERULEAN]
+app = Dash(__name__, external_stylesheets=external_stylesheets)
+
 
 # App layout
 app.layout = html.Div([
