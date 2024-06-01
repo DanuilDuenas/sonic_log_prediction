@@ -1065,6 +1065,6 @@ def download_predictions(n_clicks, data):
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=True)
 
 
