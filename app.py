@@ -1,3 +1,11 @@
+
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+#  HERRAMIENTA DASH - PROYECTO MINERÍA DE DATOS: PREDICCIÓN DE REGISTROS SÓNICOS A PARTIR DE REGISTROS BÁSICOS   
+# -------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------------
+
+# CARGA DE LIBRERÍAS
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
 import pandas as pd
 import plotly.express as px
@@ -9,31 +17,61 @@ import joblib
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-df = pd.read_csv('Info_general_pozos.csv', sep = "\t")
-df['Tipo'] = df.apply(lambda row: 'Sonico OH' if row['OPEN HOLE'] == 'X' else 'Sonico CH' , axis=1)
 
+# *************************************************************************************************************
+#                              PROCESAMIENTO DE DATOS PARA VISUALIZACIÓN 
+# *************************************************************************************************************
+
+# Carga de Información general de pozos
+df = pd.read_csv('Info_general_pozos.csv', sep = "\t")
+df['Tipo'] = df.apply(lambda row: 'Sónico OH' if row['OPEN HOLE'] == 'X' else 'Sónico CH' , axis=1)
+
+# Creación de dataframes para visualización de tablas en el dash con las métricas de desempeño
+# Registro DTS
 data_DTS = {
     "Modelo": ["XGBoost", "Random Forest", "LightGBM", "Gradient Boosting", "GAM (Splines + Inter)", "Red Neuronal", "GAM (Splines)", "Regression Lasso", "ElasticNet Regression", "LSTM"],
     "RMSE": [9.41, 9.82, 10.46, 10.48, 16.07, 16.42, 17.97, 19.28, 19.28, 17.57],
     "MAE": [6.61, 6.89, 7.61, 7.73, 12.36, 12.62, 14.03, 15.10, 15.10, 14.38],
     "R2": ["87.91%", "86.81%", "85.06%", "84.96%", "64.70%", "63.12%", "55.88%", "49.20%", "49.20%", "29.00%"]
 }
-
 data_DTS = pd.DataFrame(data_DTS)
 
+# Registros DTC
 data_DTC = {
     "Modelo": ["XGBoost", "Random Forest", "LightGBM", "Gradient Boosting", "GAM (Splines + Inter)", "Red Neuronal", "GAM (Splines)", "Regression Lasso", "ElasticNet Regression", "LSTM"],
     "RMSE": [3.27, 3.54, 3.57, 3.61, 5.14, 5.55, 5.89, 6.64, 6.64, 6.62],
     "MAE": [2.25, 2.41, 2.54, 2.58, 3.85, 4.23, 4.51, 5.09, 5.09, 5.23],
     "R2": ["87.97%", "85.93%", "85.63%", "85.31%", "70.24%", "65.22%", "60.89%", "50.31%", "50.31%", "19.41%"]
 }
-
 data_DTC = pd.DataFrame(data_DTC)
 
+# Creación de lista de nombres de modelos para listas desplegables
 Lista_Nombres = ["XGBoost","Random Forest","LightGBM","Gradient Boosting","GAM(Splines + Inter)","Red Neuronal","GAM(Splines)","Regresion Lasso","Elastic Net","Red Neuronal LSTM"]
 
 
+# *************************************************************************************************************
+#                              DEFINICIÓN DE FUNCIONES
+# *************************************************************************************************************
+
+
+# Función para graficar el desempeño de los modelos sobre el set de prueba
 def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
+    """
+    La función permite obtener las gráficas de diagnóstico de desempeño sobre el set de prueba:
+        - Valores predichos vs valores reales
+        - Residuos vs valores predichos
+        - Histograma de residuos
+    
+    input: 
+        NOMBRE_MODELO: Nombre del modelo seleccionado para visualizar sus resultados.
+        sample_size: tamaño de muestra a ser graficado, empleado para mejorar el rendimiento de la herramienta, valor por defecto = 1000
+    
+    output:
+        gráficas de desempeño para la predicción de las variables objetivo sobre el set de prueba.
+
+    """
+    
+    # Cargar las predicciones obtenidas para cada variable
     PREDDTC = pd.read_excel('y_test_DTC_Predicciones.xlsx')
     PREDDTS = pd.read_excel('y_test_DTS_Predicciones.xlsx')
 
@@ -41,6 +79,8 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
     PREDDTC_sample = PREDDTC.sample(n=min(sample_size, len(PREDDTC)))
     PREDDTS_sample = PREDDTS.sample(n=min(sample_size, len(PREDDTS)))
 
+
+    # Se realizan las gráficas de desempeño de acuero a los modelos seleccionados.
     if NOMBRE_MODELO == "Red Neuronal LSTM":
         PREDDTC_sample['Model1_Residuals'] = PREDDTC_sample['DTC_REAL_SEQ'] - PREDDTC_sample[NOMBRE_MODELO]
         PREDDTS_sample['Model2_Residuals'] = PREDDTS_sample['DTS_REAL_SEQ'] - PREDDTS_sample[NOMBRE_MODELO]
@@ -56,7 +96,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL_SEQ'], y=PREDDTC_sample[NOMBRE_MODELO], mode='markers', 
-                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
                                  y=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
@@ -65,7 +105,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL_SEQ'], y=PREDDTC_sample['Model1_Residuals'], mode='markers', 
-                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue', line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL_SEQ'].min(), PREDDTC_sample['DTC_REAL_SEQ'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -78,7 +118,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL_SEQ'], y=PREDDTS_sample[NOMBRE_MODELO], mode='markers',
-                                  marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                  marker=dict(color='lightgreen', line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
                                  y=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
@@ -87,7 +127,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL_SEQ'], y=PREDDTS_sample['Model2_Residuals'], mode='markers', 
-                                 marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='lightgreen', line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL_SEQ'].min(), PREDDTS_sample['DTS_REAL_SEQ'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -151,7 +191,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL'], y=PREDDTC_sample[NOMBRE_MODELO], mode='markers', 
-                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue',line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
                                  y=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
@@ -160,7 +200,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
         
         # Scatter plot of residuals for Model1
         fig.add_trace(go.Scatter(x=PREDDTC_sample['DTC_REAL'], y=PREDDTC_sample['Model1_Residuals'], mode='markers', 
-                                 marker=dict(color='skyblue', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 marker=dict(color='skyblue',line=dict(color='white', width=0.5)), showlegend=False),
                       row=1, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTC_sample['DTC_REAL'].min(), PREDDTC_sample['DTC_REAL'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -173,7 +213,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL'], y=PREDDTS_sample[NOMBRE_MODELO], 
-                                 mode='markers', marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 mode='markers', marker=dict(color='lightgreen',line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=1)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
                                  y=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
@@ -182,7 +222,7 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         # Scatter plot of residuals for Model2
         fig.add_trace(go.Scatter(x=PREDDTS_sample['DTS_REAL'], y=PREDDTS_sample['Model2_Residuals'], 
-                                 mode='markers', marker=dict(color='lightgreen', opacity=0.5, line=dict(color='white', width=0.5)), showlegend=False),
+                                 mode='markers', marker=dict(color='lightgreen',line=dict(color='white', width=0.5)), showlegend=False),
                       row=2, col=2)
         fig.add_trace(go.Scatter(x=[PREDDTS_sample['DTS_REAL'].min(), PREDDTS_sample['DTS_REAL'].max()], 
                                  y=[0, 0], mode='lines', line=dict(color='red', dash='dot'), showlegend=False),
@@ -238,13 +278,24 @@ def grafica_desempeno_modelos(NOMBRE_MODELO, sample_size=1000):
 
         return fig
 
-# FUNCIÓN PARA PREDECIR
 
-def generar_predic(ESTADO ,RAW_DATA):
 
-    ##### primero hacemos el pipeline ############################
+# Función para predecir las variables de interés a partir de un registro ingresado por el usuario y un modelo seleccionado.
+def generar_predic(ESTADO, RAW_DATA):
+    """
+    La función permite obtener la predicción de los registros sónicos a partir de registros básicos ingresados por el usuario.
 
-    # cambiar nombre columnas
+    input: 
+        ESTADO: el estado indica que modelo emplear entre las tres opciones disponibles
+        RAW_DATA: corresponde a los registro básicos empleados como variables predictoras.
+
+    output:
+        archivo dataframe con las variables predichas referenciadas en profundidad
+    """
+
+    ##### Preprocesamiento del archivo ingresado ######
+
+    # Homologación del nombre de variables
     dicc_curv = {
         "MD": "Depth",
         "GRC": "GR",
@@ -266,18 +317,19 @@ def generar_predic(ESTADO ,RAW_DATA):
         "AHT60": "RT60",
         "AHT90": "RT90"
     }
-
     RAW_DATA=RAW_DATA.copy()
+    
     # Renombrar las columnas del DataFrame utilizando el diccionario
     RAW_DATA.rename(columns=dicc_curv, inplace=True)
-    # fultramos colunas de interes (predictores seleccionados en los modelos)
+    
+    # Se filtran las columnas de interés (predictores seleccionados en los modelos)
     columnas_interes = ['Depth', 'SP', 'GR', "NPHI", "RHOB", "PEF","RT30"]
     DATOSFILTRADOSRAW = RAW_DATA[columnas_interes]
 
     # Renombrar las columnas temporalmente para que sean únicas
     DATOSFILTRADOSRAW.columns = [f"{col}_{i}" for i, col in enumerate(DATOSFILTRADOSRAW.columns)]
 
-    # Crear una lista para almacenar los nombres de las columnas a eliminar
+    # Crear una lista para almacenar los nombres de las columnas a remover
     columnas_a_eliminar = []
 
     # Recorrer las columnas por su índice de posición
@@ -291,89 +343,95 @@ def generar_predic(ESTADO ,RAW_DATA):
     # Revertir los nombres de las columnas si es necesario
     DATOSFILTRADOSRAW.columns = [col.split('_')[0] for col in DATOSFILTRADOSRAW.columns]
 
-    # ELIMINAMOS NAS
+    # Se eliminan los faltantes. 
     DATOSFILTRADOS = DATOSFILTRADOSRAW.dropna()
 
-    # aplicamos transformacion logaritimica sobre RT30
+    # Se aplica transformacion logaritimica sobre RT30
     DATOSFILTRADOS["log_RT30"] = DATOSFILTRADOS["RT30"].apply(lambda x: np.log(x ))
     DATOSFILTRADOS= DATOSFILTRADOS.drop(columns="RT30")
-    # aislamos depth sin normalzar
-
+    
+    # Se conserva la variable depth sin normalzar para la exportación
     depth = DATOSFILTRADOS["Depth"]
 
-        #normalizamos los datos
+    # Se normalizan los datos
     scaler_X_loaded = joblib.load('./scaler_X.pkl')
 
     # Aplicar la transformación a los nuevos datos
     Datos_limpios = scaler_X_loaded.transform(DATOSFILTRADOS)
+    Datos_limpios = pd.DataFrame(Datos_limpios, columns=DATOSFILTRADOS.columns)
 
-    # ye una ves generado el pipeline de limpieza de datos podemos llamar los modelos para eempear a acer prediciones
+    # Una vez generado el pipeline de procesamiento de datos, es posible emplear los modelos predictivos
 
-
-
+    # Estado 1: Modelo XGBoost
     if ESTADO ==1 :
-
-                # Cargar el modelo desde el archivo
+        
+        # DTS
+        # Cargar el modelo desde el archivo
         modelo_cargadoDTS = joblib.load('./best_model_XGB_DTS.pkl')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
+        # Realizar predicciones
         prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
 
-                        # Cargar el modelo desde el archivo
+        # DTC
+        # Cargar el modelo desde el archivo
         modelo_cargadoDTC = joblib.load('./best_model_XGB_DTC.pkl')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
+        # Realizar predicciones
         prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
 
+        # Se crea un dataframe con las predicciones referenciadas en profundidad
         Predicciones = pd.DataFrame({
             'Depth': depth,
             'PrediccionesDTC': prediccionesDTC,
             'PrediccionesDTS': prediccionesDTS,
-
         })
 
-    # if ESTADO ==2 :
-
-    #             # Cargar el modelo desde el archivo
-    #     modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
-    #     # Ahora puedes usar el modelo cargado para hacer predicciones
-    #     prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
-
-    #                     # Cargar el modelo desde el archivo
-    #     modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
-    #     # Ahora puedes usar el modelo cargado para hacer predicciones
-    #     prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
-
-    #     Predicciones = pd.DataFrame({
-    #         'Depth': depth,
-    #         'PrediccionesDTC': prediccionesDTC,
-    #         'PrediccionesDTS': prediccionesDTS,
-
-    #     })
-
-
+    # Estado 2: Modelo Random Forest
     if ESTADO ==2 :
-
-                # Cargar el modelo desde el archivo
-        modelo_cargadoDTS = joblib.load('./best_model_lgb_DTS.pkl')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
+        
+        # DTS
+        # Cargar el modelo desde el archivo
+        modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
+        # Realizar predicciones
         prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
 
-                        # Cargar el modelo desde el archivo
-        modelo_cargadoDTC = joblib.load('./best_model_lgb_DTC.pkl')
-        # Ahora puedes usar el modelo cargado para hacer predicciones
+        # DTC
+        # Cargar el modelo desde el archivo
+        modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
+        # Realizar predicciones
         prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
 
+        # Se crea un dataframe con las predicciones referenciadas en profundidad
         Predicciones = pd.DataFrame({
             'Depth': depth,
             'PrediccionesDTC': prediccionesDTC,
             'PrediccionesDTS': prediccionesDTS,
-
         })
 
+    # Estado 3: Modelo LightGBM
+    if ESTADO ==3 :
+        
+        # DTS
+        # Cargar el modelo desde el archivo
+        modelo_cargadoDTS = joblib.load('./best_model_lgb_DTS.pkl')
+        # Realizar predicciones
+        prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
 
+        # DTC
+        # Cargar el modelo desde el archivo
+        modelo_cargadoDTC = joblib.load('./best_model_lgb_DTC.pkl')
+        # Realizar predicciones
+        prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
+
+        # Se crea un dataframe con las predicciones referenciadas en profundidad
+        Predicciones = pd.DataFrame({
+            'Depth': depth,
+            'PrediccionesDTC': prediccionesDTC,
+            'PrediccionesDTS': prediccionesDTS,
+        })
     return Predicciones
 
-# Función para graficar la predicción
 
+
+# Función para graficar los registros ingresados por el usuario junto con aquellos predichos.
 def plot_prediccion(df, df_pred):
     """
     Funcion para graficar los registros usados como predictores
@@ -388,9 +446,10 @@ def plot_prediccion(df, df_pred):
     na_cols = df.isna().sum() == len(df)
     non_empty_cols = na_cols[~na_cols].index.tolist()
 
+    # Dataframe con columnas no vacías
     df = df[non_empty_cols].copy()
 
-    # cambiar nombre columnas
+    # Creación de diccionario de nombres para homologación de registros
     dicc_curv = {
         "MD": "Depth",
         "GRC": "GR",
@@ -477,11 +536,16 @@ def plot_prediccion(df, df_pred):
 
     return fig
 
+
+
+# ***************************************************
+#               APP LAYOUT - FRONTEND
+# ***************************************************
+
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+app.title = "Predicción Registros Sónicos"
 
-# App layout
 app.layout = html.Div([
 
     html.Div([
@@ -492,8 +556,7 @@ app.layout = html.Div([
         dbc.Row([
             dbc.Card(
                 dbc.CardBody([
-                    # html.Div('Descripción del problema', className="text-black fs-3"),
-                                    dbc.Row([
+                    dbc.Row([
                     dbc.Col(html.H1("Descripción del problema", className='text-center text-primary mb-4')),
                 ]),
                     html.Div([
@@ -512,10 +575,7 @@ app.layout = html.Div([
         dbc.Row([
             dbc.Card(
                 dbc.CardBody([
-                    # html.Div('Descripción de datos', className="text-black fs-3"),
-
-
-        html.Div([
+            html.Div([
             dbc.Container([
                 dbc.Row([
                     dbc.Col(html.H1("Descripción de los Datos", className='text-center text-primary mb-4')),
@@ -646,11 +706,6 @@ app.layout = html.Div([
                 ])
             ])
         ]),
-
-
-
-
-              
         ], style={'max-width': '1800px'})
         ]),
         style={'background-color': 'white', 'border': '1px solid lightgray', 'border-radius': '8px', 'padding': '10px'}
@@ -685,14 +740,10 @@ app.layout = html.Div([
         
         html.Br(),
         html.Hr(),
-
         html.H3("Análisis Exploratorio"),
         html.Hr(),
         html.Div(['En las siguientes gráficas se presenta: la importancia de las variables predictoras, las correlaciones entre las variables y las respuestas, y la distribución de las variables más relevantes']),
         html.Br(),
-        
-
-        
         dbc.Card(
         dbc.Row([
             dbc.Col([
@@ -714,7 +765,7 @@ app.layout = html.Div([
             ],width=6),
                 
             dbc.Col([
-                html.Div('Distribución de Variables revelantes',  style={'text-align': 'center','fontWeight': 'bold'},),
+                html.Div('Distribución de Variables Revelantes',  style={'text-align': 'center','fontWeight': 'bold'},),
                 html.Br(),
                 html.Br(),
                 dbc.Col([
@@ -741,9 +792,6 @@ app.layout = html.Div([
         html.Hr(),
         html.Div((html.H1("Desempeño de Modelos", className='text-center text-primary mb-4'))),
         html.Hr(),
-      
-        
-        # html.Div(['Las siguientes tablas presentan el desempeño de los modelos predictivos evaluados sobre el set de prueba']),
         
     dbc.Container([html.Div(['Las siguientes tablas presentan el desempeño de los modelos predictivos evaluados sobre el set de prueba']), html.Br(),
         dbc.Row([ 
@@ -762,7 +810,7 @@ app.layout = html.Div([
                     ]),
                     style={'background-color': '#f8f9fa', 'border': '1px solid lightgray', 'border-radius': '8px', 'padding': '10px'}
                 )
-            ], width=6),  # Set table column width to 6
+            ], width=6),
             
             dbc.Col([
                 dbc.Card(
@@ -779,7 +827,7 @@ app.layout = html.Div([
                     ]),
                     style={'background-color': '#f8f9fa', 'border': '1px solid lightgray', 'border-radius': '8px', 'padding': '10px'}
                 )
-            ], width=6)  # Set table column width to 6
+            ], width=6)  
         ]),
     ]),
         
@@ -795,9 +843,9 @@ app.layout = html.Div([
                 dcc.Dropdown(
                     id='model-dropdown',
                     options=[{'label': model, 'value': model} for model in Lista_Nombres],
-                    value=Lista_Nombres[0]  # Default to the first model in the list
+                    value=Lista_Nombres[0]  
                 ),
-            ], width=4),  # Set dropdown column width to 4
+            ], width=4),  
         ]),
         html.Br(),
         dbc.Row([
@@ -807,7 +855,7 @@ app.layout = html.Div([
                                                     'height': None, 'filename': 'Desempeño',
                                                     'width': None,'scale': 15,  # Image quality
                                                     }, 'scrollZoom': True,'displaylogo': False},)# style={'height' : '95vh',})# 'width' : '56vw' }),
-            ], width=16),  # Set graph column width to 12 (full width)
+            ], width=16),  
         ]),
     ])
     ,
@@ -818,7 +866,7 @@ app.layout = html.Div([
     
     html.Div([
     dbc.Container([
-        html.Div(['Esta sección permite la carga de los registros básicos de un pozo para la predicción de los registros sónicos, y seleccionar el modelo predictivo entre los modelos con mejor desempeño.', html.Br(), 'Una vez realizada la predicción, se visualizan los registros, y se habilita la opción de descarga']),
+        html.Div(['Esta sección permite la carga de los registros básicos de un pozo para la predicción de los registros sónicos, y seleccionar el modelo predictivo entre los tres modelos con mejor desempeño.', html.Br(), 'Una vez realizada la predicción, se visualizan los registros, y se habilita la opción de descarga']),
         html.Br(),
         dbc.Row([
             dbc.Col([
@@ -849,8 +897,8 @@ app.layout = html.Div([
                     id='model-radioitems',
                     options=[
                         {'label': 'XGBoost', 'value': 1},
-                        # {'label': 'Random Forest', 'value': 2},
-                        {'label': 'LightGBM', 'value': 2}
+                        {'label': 'Random Forest', 'value': 2},
+                        {'label': 'LightGBM', 'value': 3}
                     ],
                     value=1,  # Default value
                     labelStyle={'display': 'block'}
@@ -885,8 +933,15 @@ app.layout = html.Div([
 ])
 
 
-# ********************************* CALLBACKS*****************************************
 
+
+# ************************************************************************************
+# ************************************************************************************
+# ************************************************************************************
+# ********************************* CALLBACKS*****************************************
+# ************************************************************************************
+# ************************************************************************************
+# ************************************************************************************
 
 # Callback para graficar coordenadas de pozo
 @callback(
@@ -895,7 +950,6 @@ app.layout = html.Div([
     State('x_input_box','value'),
     State('y_input_box','value')
 )
-
 def update_graph(n_clicks, x, y):
     fig = px.scatter(df, x='X (m)', y='Y (m)', title='Mapa de ubicación de los pozos', text = 'POZO', color='Tipo', 
                      labels={'Tipo': 'Tipo Registro Sonico','X (m)' : 'Coordenada X (m)','Y (m)' : 'Coordenada Y (m)' })
@@ -919,22 +973,22 @@ def update_graph(n_clicks, x, y):
         fig.add_scatter(x=new_point_df['X'], y=new_point_df['Y'], mode='markers+text', 
                         marker=dict(size=10, color='darkgreen', symbol="triangle-up"), text = 'WELL', name='Pozo a predecir', textposition='top center'
                         )
-        # Define the radii of the circles
+        # Se definen los radios alrededor de la coordenada del pozo
         radii = [150, 500, 1000]
 
-        # Define the colors for the circles, from light gray to dark gray
+        # Se definen los colores para cada circunferencia
         colors = ['lightgray', 'gray', 'black']
 
-        # Add circles to the figure with different colors
+        # Se agregan las circunferencias a la figura
         for radius, color in zip(radii, colors):
             fig.add_shape(
                 type='circle',
                 xref='x', yref='y',
-                x0=x - radius, y0=y - radius,  # Left-bottom corner
-                x1=x + radius, y1=y + radius,  # Right-top corner
-                line=dict(color=color, width=0.5, dash='dash')
+                x0=x - radius, y0=y - radius,  
+                x1=x + radius, y1=y + radius,  
+                line=dict(color=color, width=0.5, dash='dot')
             )
-            # Add annotation for each radius
+            # Se agrega la medida de radio de cada circunferencia
             fig.add_annotation(
                 x=x + radius,
                 y=y,
@@ -943,10 +997,7 @@ def update_graph(n_clicks, x, y):
                 yshift=10,
                 xshift=12,
                 font=dict(size=7)
-
             )
-
-   
     return fig
 
 
@@ -955,12 +1006,11 @@ def update_graph(n_clicks, x, y):
     Output('model-performance-graph', 'figure'),
     Input('model-dropdown', 'value'),
 )
-def update_graph(selected_model):
+def update_graph_1(selected_model):
     return grafica_desempeno_modelos(selected_model, sample_size=1000)
 
 
-
-# CARGA DE REGISTRO
+# Callback para mostrar el archivo ingresado por el usuario
 @app.callback(Output('output_data_upload', 'children'),
               Input('upload-data', 'contents'),
               State('upload-data', 'filename'),
@@ -975,7 +1025,6 @@ def update_output(content, name_file):
             return None
 
 
-
 # Callback para generar predicciones y actualizar el gráfico
 @app.callback(
     [Output('output-predictions', 'children'),
@@ -986,7 +1035,7 @@ def update_output(content, name_file):
      State('upload-data', 'filename'),
      State('model-radioitems', 'value')]
 )
-def update_output(n_clicks, contents, filename, selected_model):
+def update_output_1(n_clicks, contents, filename, selected_model):
     if n_clicks > 0 and contents:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
@@ -1014,10 +1063,8 @@ def download_predictions(n_clicks, data):
         return dcc.send_data_frame(predictions.to_csv, "predicciones.csv", index=False)
     return None
 
-
-
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
 
 
