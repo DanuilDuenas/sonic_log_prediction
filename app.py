@@ -545,6 +545,7 @@ def plot_prediccion(df, df_pred):
 external_stylesheets = [dbc.themes.CERULEAN]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Predicción Registros Sónicos"
+server = app.server
 
 app.layout = html.Div([
 
@@ -1065,6 +1066,6 @@ def download_predictions(n_clicks, data):
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run_server(debug=True)
 
 
