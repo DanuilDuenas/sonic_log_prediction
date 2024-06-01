@@ -897,8 +897,8 @@ app.layout = html.Div([
                     id='model-radioitems',
                     options=[
                         {'label': 'XGBoost', 'value': 1},
-                        {'label': 'Random Forest', 'value': 2},
-                        {'label': 'LightGBM', 'value': 3}
+                        # {'label': 'Random Forest', 'value': 2},
+                        {'label': 'LightGBM', 'value': 2}
                     ],
                     value=1,  # Default value
                     labelStyle={'display': 'block'}
