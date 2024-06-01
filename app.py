@@ -384,30 +384,30 @@ def generar_predic(ESTADO, RAW_DATA):
             'PrediccionesDTS': prediccionesDTS,
         })
 
-    # Estado 2: Modelo Random Forest
-    if ESTADO ==2 :
+    # # Estado 2: Modelo Random Forest
+    # if ESTADO ==2 :
         
-        # DTS
-        # Cargar el modelo desde el archivo
-        modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
-        # Realizar predicciones
-        prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
+    #     # DTS
+    #     # Cargar el modelo desde el archivo
+    #     modelo_cargadoDTS = joblib.load('./joblib_best_model_RF_DTS.sav')
+    #     # Realizar predicciones
+    #     prediccionesDTS = modelo_cargadoDTS.predict(Datos_limpios)
 
-        # DTC
-        # Cargar el modelo desde el archivo
-        modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
-        # Realizar predicciones
-        prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
+    #     # DTC
+    #     # Cargar el modelo desde el archivo
+    #     modelo_cargadoDTC = joblib.load('./joblib_best_model_RF_DTC.sav')
+    #     # Realizar predicciones
+    #     prediccionesDTC = modelo_cargadoDTC.predict(Datos_limpios)
 
-        # Se crea un dataframe con las predicciones referenciadas en profundidad
-        Predicciones = pd.DataFrame({
-            'Depth': depth,
-            'PrediccionesDTC': prediccionesDTC,
-            'PrediccionesDTS': prediccionesDTS,
-        })
+    #     # Se crea un dataframe con las predicciones referenciadas en profundidad
+    #     Predicciones = pd.DataFrame({
+    #         'Depth': depth,
+    #         'PrediccionesDTC': prediccionesDTC,
+    #         'PrediccionesDTS': prediccionesDTS,
+    #     })
 
-    # Estado 3: Modelo LightGBM
-    if ESTADO ==3 :
+    # Estado 2: Modelo LightGBM
+    if ESTADO ==2 :
         
         # DTS
         # Cargar el modelo desde el archivo
@@ -898,8 +898,8 @@ app.layout = html.Div([
                     id='model-radioitems',
                     options=[
                         {'label': 'XGBoost', 'value': 1},
-                        {'label': 'Random Forest', 'value': 2},
-                        {'label': 'LightGBM', 'value': 3}
+                        # {'label': 'Random Forest', 'value': 2},
+                        {'label': 'LightGBM', 'value': 2}
                     ],
                     value=1,  # Default value
                     labelStyle={'display': 'block'}
